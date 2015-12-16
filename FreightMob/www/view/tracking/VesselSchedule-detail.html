@@ -5,7 +5,7 @@
                 <button class="button button-icon button-clear ion-navicon" ng-click="returnList()"></button>
             </span>
         </div>
-        <div class="title">Vessel Schedule - <span ng-bind="Rcvy1Detail.PortOfDischargeName"></span></div>
+        <div class="title">Schedule - <span ng-bind="Rcvy1Detail.PortOfDischargeName"></span></div>
     </div>
 	<ion-content class="has-header">
         <div class="card animate-ripple" tabindex="-1" ng-repeat="Rcvy1 in Rcvy1s">
@@ -13,12 +13,12 @@
                 <ion-item nav-clear menu-close class="item">
                     <h3>Vessel Voyage&nbsp;:&nbsp;<span ng-bind="Rcvy1.VesselCode"></span>&nbsp;V.&nbsp;<span ng-bind="Rcvy1.VoyageNo"></span></h3>
                     <p>Carrier&nbsp;:&nbsp;<span ng-bind="Rcvy1.ShippinglineName"></span></p>
-					<p>Transit Time&nbsp;:&nbsp;<span ng-bind="Rcvy1.TranSit"></span></p>
+					<p>Transit&nbsp;:&nbsp;<span ng-bind="Rcvy1.TranSit"></span>&nbsp;&nbsp;Days</p>
                     <p>
-					ETD&nbsp;:&nbsp;<span ng-bind="funcShowDate(Rcvy1.ETD)"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					ETA&nbsp;:&nbsp;<span ng-bind="funcShowDate(Rcvy1.ETA)"></span>					
+					<i class="icon ion-calendar"></i>&nbsp;&nbsp;ETD&nbsp;:&nbsp;<span ng-bind="ShowDate(Rcvy1.ETD)"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<i class="icon ion-calendar"></i>&nbsp;&nbsp;ETA&nbsp;:&nbsp;<span ng-bind="ShowDate(Rcvy1.ETA)"></span>					
 					</p>
-					<p>Close Date&nbsp;:&nbsp;<span ng-bind="funcShowDatetime(Rcvy1.CloseDateTime)"></span></p>
+					<p><i class="icon ion-calendar"></i>&nbsp;&nbsp;Close Date&nbsp;:&nbsp;<span ng-bind="ShowDatetime(Rcvy1.CloseDateTime)"></span></p>
                 </ion-item>
             </div>
         </div>
