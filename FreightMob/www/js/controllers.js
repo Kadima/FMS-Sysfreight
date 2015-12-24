@@ -249,7 +249,7 @@ appControllers.controller('MainCtrl',
                 $state.go('contacts', {}, { reload: true });
             };
             $scope.GoToPa = function () {
-                $state.go('paymentApproval', {}, { reload: true });
+                //$state.go('paymentApproval', {}, { reload: true });
             };
             $scope.GoToVS = function () {
                 $state.go('vesselSchedule', {}, { reload: true });
@@ -816,6 +816,11 @@ appControllers.controller('ShipmentStatusCtrl',
                     }, 2500);
                 }
             };
+			$('#iContainerNo').on('keydown', function (e) {
+                if (e.which === 9 || e.which === 13) {
+                    $scope.GoToDetail('ContainerNo');
+                }
+            });
         }]);
 
 appControllers.controller('ShipmentStatusListCtrl',
