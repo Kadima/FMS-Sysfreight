@@ -1,4 +1,4 @@
-var appServices = angular.module('MobileAPP.services', [
+var appService = angular.module('MobileAPP.services', [
     'ionic',
     'ngCordova.plugins.toast',
     'ngCordova.plugins.file',
@@ -6,7 +6,7 @@ var appServices = angular.module('MobileAPP.services', [
     'ngCordova.plugins.fileOpener2'
 ]);
 
-appServices.service('WebApiService', ['$http', '$ionicPopup', '$timeout', 
+appService.service('WebApiService', ['$http', '$ionicPopup', '$timeout',
     function ($http, $ionicPopup, $timeout) {
         function parseResponseStatus (status) {
             if (!status) return { isSuccess: true };
@@ -35,47 +35,47 @@ appServices.service('WebApiService', ['$http', '$ionicPopup', '$timeout',
         }
         this.Post = function (requestUrl, requestData, onSuccess, onError) {
             var strSignature = hex_md5(strBaseUrl + requestUrl + strSecretKey.replace(/-/ig, ""));
-    		var url = strWebServiceURL + strBaseUrl + requestUrl;
-    		var config = {
-    			withCredentials: false,
-    			headers: {
-    				'content-type': 'application/json',
-    				'cache-control': 'no-cache'
-    				//'Signature': strSignature
-    			}
-    		};
+            var url = strWebServiceURL + strBaseUrl + requestUrl;
+            var config = {
+                withCredentials: false,
+                headers: {
+                  'content-type': 'application/json',
+                  'cache-control': 'no-cache'
+                  //'Signature': strSignature
+                }
+            };
             $http.post(url, requestData, config).success(function (response) {
-                if (!response) {
-                    if (onSuccess) onSuccess(null);
-                    return;
-                }
-                var status = parseResponseStatus(response);
-                if (status.isSuccess) {
-                    if (onSuccess) onSuccess(response);
-                }
-                else {
-                    if (onError) onError(response);
-                    var alertPopup = $ionicPopup.alert({
-                        title: response.meta.message,
-                        subTitle: response.meta.errors.message,
-                        okType: 'button-assertive'
-                    });
-                    $timeout(function () {
-                        alertPopup.close();
-                    }, 2500);
-                }
+              if (!response) {
+                  if (onSuccess) onSuccess(null);
+                  return;
+              }
+              var status = parseResponseStatus(response);
+              if (status.isSuccess) {
+                  if (onSuccess) onSuccess(response);
+              }
+              else {
+                  if (onError) onError(response);
+                  var alertPopup = $ionicPopup.alert({
+                      title: response.meta.message,
+                      subTitle: response.meta.errors.message,
+                      okType: 'button-assertive'
+                  });
+                  $timeout(function () {
+                      alertPopup.close();
+                  }, 2500);
+              }
             }).error(function (response) {
-                try {
-                    if (onError) onError(response);
-                    var alertPopup = $ionicPopup.alert({
-                        title: 'Connect to WebService failed.',
-                        okType: 'button-assertive'
-                    });
-                    $timeout(function () {
-                        alertPopup.close();
-                    }, 2500);
-                }
-                catch (e) { }
+              try {
+                  if (onError) onError(response);
+                  var alertPopup = $ionicPopup.alert({
+                      title: 'Connect to WebService failed.',
+                      okType: 'button-assertive'
+                  });
+                  $timeout(function () {
+                      alertPopup.close();
+                  }, 2500);
+              }
+              catch (e) { }
             });
         };
         this.Get = function (requestUrl, onSuccess, onError, onFinally) {
@@ -168,7 +168,7 @@ appServices.service('WebApiService', ['$http', '$ionicPopup', '$timeout',
         };
     }]);
 
-appServices.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading', '$ionicPopup', '$cordovaToast', '$cordovaFile', '$cordovaFileTransfer', '$cordovaFileOpener2',
+appService.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading', '$ionicPopup', '$cordovaToast', '$cordovaFile', '$cordovaFileTransfer', '$cordovaFileOpener2',
     function ($http, $timeout, $ionicLoading, $ionicPopup, $cordovaToast, $cordovaFile, $cordovaFileTransfer, $cordovaFileOpener2) {
         this.Download = function(fileName, fileType, onPlatformError, onCheckError, onDownloadError){
             $ionicLoading.show({
@@ -218,6 +218,30 @@ appServices.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading'
             } else {
                 $ionicLoading.hide();
                 if (onPlatformError) onPlatformError(url);
+            }
+        };
+    }]);
+
+appService.service('DateTimeService', [
+    function () {
+        this.ShowDate = function (utc) {
+            if (typeof (utc) === 'undefined') return ''
+            var utcDate = Number(utc.substring(utc.indexOf('(') + 1, utc.lastIndexOf('-')));
+            var newDate = new Date(utcDate);
+            if (newDate.getUTCFullYear() < 2166 && newDate.getUTCFullYear() > 1899) {
+                return newDate.Format('dd-NNN-yyyy');
+            } else {
+                return '';
+            }
+        };
+        this.ShowDatetime = function (utc) {
+            if (typeof (utc) === 'undefined') return ''
+            var utcDate = Number(utc.substring(utc.indexOf('(') + 1, utc.lastIndexOf('-')));
+            var newDate = new Date(utcDate);
+            if (newDate.getUTCFullYear() < 2166 && newDate.getUTCFullYear() > 1899) {
+                return newDate.Format('dd-NNN-yyyy HH:mm');
+            } else {
+                return '';
             }
         };
     }]);
