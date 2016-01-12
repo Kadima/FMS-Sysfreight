@@ -212,7 +212,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
             })
             .state('contactsDetail', {
                 url: '/contacts/detail/:TrxNo/:BusinessPartyName',
-                cache: 'false',
                 templateUrl: 'view/crm/Contacts-detail.html',
                 controller: 'ContactsDetailCtrl'
             })
@@ -248,18 +247,17 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
             })
             .state('shipmentStatus', {
                 url: '/shipmentStatus',
-                //cache: 'false',
                 templateUrl: 'view/tracking/ShipmentStatus.html',
                 controller: 'ShipmentStatusCtrl'
             })
             .state('shipmentStatusList', {
-                url: '/shipmentStatus/list',
+                url: '/shipmentStatus/list/:FilterName/:FilterValue',
                 cache: 'false',
                 templateUrl: 'view/tracking/ShipmentStatus-list.html',
                 controller: 'ShipmentStatusListCtrl'
             })
             .state('shipmentStatusDetail', {
-                url: '/shipmentStatus/detail',
+                url: '/shipmentStatus/detail/:FilterName/:FilterValue/:ModuleCode',
                 cache: 'false',
                 templateUrl: 'view/tracking/ShipmentStatus-detail.html',
                 controller: 'ShipmentStatusDetailCtrl'

@@ -127,8 +127,7 @@ appControllers.controller('LoginCtrl',
                     return;
                 }
                 $ionicLoading.show();
-                var jsonData = { "UserId": $scope.logininfo.strUserName, "Password": hex_md5($scope.logininfo.strPassword) };
-                var strUri = "/api/freight/login";
+                var strUri = '/api/freight/login/check?UserId=' + $scope.logininfo.strUserName + '&Md5Stamp=' + hex_md5($scope.logininfo.strPassword);
                 var onSuccess = function (response) {
                     $ionicLoading.hide();
                     sessionStorage.clear();
@@ -142,7 +141,10 @@ appControllers.controller('LoginCtrl',
                 var onError = function () {
                     $ionicLoading.hide();
                 };
-                WebApiService.Post(strUri, jsonData, onSuccess, onError);
+                var onFinally = function () {
+                    $ionicLoading.hide();
+                };
+                WebApiService.GetParam(strUri, onSuccess, onError, onFinally);
             };
             if ($stateParams.CanCheckUpdate === 'Y') {
                 var url = strWebSiteURL + '/update.json';
@@ -426,17 +428,25 @@ appControllers.controller('ContactsDetailCtrl',
         ['$scope', '$stateParams', '$state', '$timeout', '$ionicHistory', '$ionicLoading', '$ionicPopup', '$ionicModal', 'DateTimeService', 'WebApiService',
         function ($scope, $stateParams, $state, $timeout, $ionicHistory, $ionicLoading, $ionicPopup, $ionicModal, DateTimeService, WebApiService) {
             $scope.rcbpDetail = {
-                TrxNo: $stateParams.TrxNo
+                TrxNo: $stateParams.TrxNo,
+                AddRcbp3: false
             };
             $scope.rcbp3Detail = {};
             $scope.returnList = function () {
                 $state.go('contactsList', { 'BusinessPartyName': $stateParams.BusinessPartyName }, {});
             };
+            $scope.TabClick = function (TabIndex) {
+                if(TabIndex === 1){
+                    $scope.rcbpDetail.AddRcbp3 = false;
+                }else{
+                    $scope.rcbpDetail.AddRcbp3 = true;
+                }
+            };
             $scope.GoToDetailEdit = function () {
                 $state.go('contactsDetailEdit', { 'TrxNo': $scope.rcbpDetail.TrxNo, 'BusinessPartyName': $stateParams.BusinessPartyName }, { reload: true });
             };
             $scope.GoToAdd = function () {
-                $state.go('contactsDetailAdd', { 'TrxNo': 'New', 'BusinessPartyName': $stateParams.BusinessPartyName }, { reload: true });
+                $state.go('contactsDetailAdd', { 'TrxNo': $scope.rcbpDetail.TrxNo, 'BusinessPartyName': $stateParams.BusinessPartyName }, { reload: true });
             };
             $scope.blnContainNameCard = function (rcbp3) {
                 if (typeof (rcbp3) == "undefined") return false;
@@ -560,14 +570,8 @@ appControllers.controller('ContactsDetailAddCtrl',
         function ($scope, $state, $stateParams, $timeout, $ionicLoading, $ionicPopup, WebApiService) {
             var TrxNo = $stateParams.TrxNo;
             var BusinessPartyName = $stateParams.BusinessPartyName;
-            $scope.returnTo = function () {
-                if(BusinessPartyName != 'New'){
-                    $state.go('contactsList', { 'BusinessPartyName': BusinessPartyName }, {});
-                }else{
-                    $state.go('contacts', {}, {});
-                }
-            };
-            $scope.returnAddRcbp1 = function(){
+            $scope.returnDetail = function () {
+                $state.go('contactsDetail', { 'TrxNo': TrxNo,'BusinessPartyName': BusinessPartyName }, { reload: true });
             };
         }]);
 
@@ -740,18 +744,18 @@ appControllers.controller('ShipmentStatusCtrl',
                     $ionicLoading.hide();
                     if (response.data.results > 1) {
                         ShipmentStatusFilter.SetList(FilterName, FilterValue);
-                        $state.go('shipmentStatusList', {}, { reload: true });
+                        $state.go('shipmentStatusList', { 'FilterName':FilterName, 'FilterValue':FilterValue }, { reload: true });
                     } else if (response.data.results === 1) {
                         $ionicLoading.show();
                         if (FilterName === 'OrderNo') {
                             ShipmentStatusFilter.SetDetial(FilterName, FilterValue, '4');
-                            $state.go('shipmentStatusDetail', {}, { reload: true });
+                            $state.go('shipmentStatusDetail', { 'FilterName':FilterName, 'FilterValue':FilterValue, 'ModuleCode':'4' }, { reload: true });
                         } else{
                             strUri = '/api/freight/tracking/sps?FilterName=' + FilterName + '&RecordCount=0&FilterValue=' + FilterValue;
                             onSuccess = function (response) {
                                 if(response.data.results.length > 0){
                                     ShipmentStatusFilter.SetDetial(FilterName, response.data.results[0].JobNo, response.data.results[0].ModuleCode);
-                                    $state.go('shipmentStatusDetail', {}, { reload: true });
+                                    $state.go('shipmentStatusDetail', { 'FilterName':FilterName, 'FilterValue':response.data.results[0].JobNo, 'ModuleCode':response.data.results[0].ModuleCode }, { reload: true });
                                 }
                             };
                             WebApiService.GetParam(strUri, onSuccess, onError, onFinally);
@@ -816,20 +820,24 @@ appControllers.controller('ShipmentStatusCtrl',
         }]);
 
 appControllers.controller('ShipmentStatusListCtrl',
-        ['$scope', '$state', '$timeout', '$ionicLoading', '$ionicPopup', 'DateTimeService', 'WebApiService', 'ShipmentStatusFilter',
-        function ($scope, $state, $timeout, $ionicLoading, $ionicPopup, DateTimeService, WebApiService, ShipmentStatusFilter) {
+        ['$scope', '$state', '$stateParams', '$timeout', '$ionicLoading', '$ionicPopup', 'DateTimeService', 'WebApiService', 'ShipmentStatusFilter',
+        function ($scope, $state, $stateParams, $timeout, $ionicLoading, $ionicPopup, DateTimeService, WebApiService, ShipmentStatusFilter) {
             var RecordCount = 0;
             var dataResults = new Array();
             $scope.Filter = ShipmentStatusFilter.GetList();
             $scope.List = {
                 moreDataCanBeLoaded: true
             };
+            if($scope.Filter.FilterName === ""){
+                $scope.Filter.FilterName = $stateParams.FilterName;
+                $scope.Filter.FilterValue = $stateParams.FilterValue;
+            }
             $scope.returnShipmentStatus = function () {
                 $state.go('shipmentStatus', {}, {});
             };
             $scope.GoToDetail = function (Jmjm1) {
                 ShipmentStatusFilter.SetDetial($scope.Filter.FilterName, Jmjm1.JobNo, Jmjm1.ModuleCode)
-                $state.go('shipmentStatusDetail', {}, { reload: true });
+                $state.go('shipmentStatusDetail', { 'FilterName':$scope.Filter.FilterName, 'FilterValue':Jmjm1.JobNo, 'ModuleCode':Jmjm1.ModuleCode }, { reload: true });
             };
             $scope.ShowDate= function (utc) {
                 return DateTimeService.ShowDate(utc);
@@ -864,9 +872,14 @@ appControllers.controller('ShipmentStatusListCtrl',
         }]);
 
 appControllers.controller('ShipmentStatusDetailCtrl',
-        ['$scope', '$state', '$timeout', '$ionicHistory', '$ionicLoading', '$ionicPopup', 'DateTimeService', 'WebApiService', 'ShipmentStatusFilter',
-        function ($scope, $state, $timeout, $ionicHistory, $ionicLoading, $ionicPopup, DateTimeService, WebApiService, ShipmentStatusFilter) {
+        ['$scope', '$state', '$stateParams', '$timeout', '$ionicHistory', '$ionicLoading', '$ionicPopup', 'DateTimeService', 'WebApiService', 'ShipmentStatusFilter',
+        function ($scope, $state, $stateParams, $timeout, $ionicHistory, $ionicLoading, $ionicPopup, DateTimeService, WebApiService, ShipmentStatusFilter) {
             $scope.Detail = ShipmentStatusFilter.GetDetial();
+            if($scope.Detail.FilterName === ""){
+                $scope.Detail.FilterName = $stateParams.FilterName;
+                $scope.Detail.FilterValue = $stateParams.FilterValue;
+                $scope.Detail.ModuleCode = $stateParams.ModuleCode;
+            }
             $scope.returnList = function () {
                 if ($ionicHistory.backView()) {
                     $ionicHistory.goBack();
