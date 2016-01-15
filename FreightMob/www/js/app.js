@@ -205,13 +205,14 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
                 controller: 'ContactsCtrl'
             })
 			.state('contactsList', {
-                url: '/contacts/list/:BusinessPartyName',
+                url: '/contacts/list/:BusinessPartyNameLike',
                 cache: 'false',
                 templateUrl: 'view/crm/Contacts-list.html',
                 controller: 'ContactsListCtrl'
             })
             .state('contactsDetail', {
-                url: '/contacts/detail/:TrxNo/:BusinessPartyName',
+                url: '/contacts/detail/:TrxNo/:BusinessPartyNameLike',
+                cache: 'false',
                 templateUrl: 'view/crm/Contacts-detail.html',
                 controller: 'ContactsDetailCtrl'
             })
@@ -221,11 +222,17 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
                 templateUrl: 'view/crm/Contacts-detail-Edit.html',
                 controller: 'ContactsDetailEditCtrl'
             })
-            .state('contactsDetailAdd', {
-                url: '/contacts/detail/Add/:TrxNo/:BusinessPartyName',
+            .state('contactsInfoEdit', {
+                url: '/contacts/info/Edit/:BusinessPartyCode/:LineItemNo',
                 cache: 'false',
-                templateUrl: 'view/crm/Contacts-detail-Add.html',
-                controller: 'ContactsDetailAddCtrl'
+                templateUrl: 'view/crm/Contacts-info-Edit.html',
+                controller: 'ContactsInfoEditCtrl'
+            })
+            .state('contactsInfoAdd', {
+                url: '/contacts/info/Add/:BusinessPartyCode/:LineItemNo',
+                cache: 'false',
+                templateUrl: 'view/crm/Contacts-info-Add.html',
+                controller: 'ContactsInfoAddCtrl'
             })
             .state('paymentApproval', {
                 url: '/paymentApproval',
@@ -305,6 +312,6 @@ app.constant('$ionicLoadingConfig', {
     template: '<div class="loader"><svg class="circular"><circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/></svg></div>'
 });
 
-app.constant('ApiEndpoint', {
+app.constant('API_ENDPOINT', {
     url: strWebServiceURL + "/" + strBaseUrl
 });
