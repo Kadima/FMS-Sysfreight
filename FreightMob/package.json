@@ -28,11 +28,14 @@
     "cordova-plugin-splashscreen",
     "cordova-plugin-statusbar",
     "cordova-plugin-vibration",
-    "cordova-plugin-whitelist",
     "cordova-plugin-x-toast",
     "ionic-plugin-keyboard",
     "https://github.com/phonegap/phonegap-plugin-barcodescanner.git",
     "cordova-plugin-device-motion",
-    "cordova-plugin-device-orientation"
+    "cordova-plugin-device-orientation",
+    "cordova-sms-plugin",
+    "cordova-plugin-actionsheet",
+    "cordova-plugin-inappbrowser",
+    "cordova-plugin-whitelist"
   ]
 }
