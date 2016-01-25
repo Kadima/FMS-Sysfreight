@@ -195,8 +195,21 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
             })
             .state('salesmanActivity', {
                 url: '/salesmanActivity',
+                cache: 'false',
                 templateUrl: 'view/crm/SalesmanActivity.html',
                 controller: 'SalesmanActivityCtrl'
+            })
+            .state('salesmanActivityList', {
+                url: '/salesmanActivity/list/:SalesmanNameLike',
+                cache: 'false',
+                templateUrl: 'view/crm/SalesmanActivity-list.html',
+                controller: 'SalesmanActivityListCtrl'
+            })
+            .state('salesmanActivityDetail', {
+                url: '/salesmanActivity/detail/:SalesmanNameLike/:TrxNo',
+                cache: 'false',
+                templateUrl: 'view/crm/SalesmanActivity-detail.html',
+                controller: 'SalesmanActivityDetailCtrl'
             })
             .state('contacts', {
                 url: '/contacts',
@@ -222,6 +235,12 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
                 templateUrl: 'view/crm/Contacts-detail-Edit.html',
                 controller: 'ContactsDetailEditCtrl'
             })
+            .state('contactsInfo', {
+                url: '/contacts/info/:BusinessPartyCode/:LineItemNo',
+                cache: 'false',
+                templateUrl: 'view/crm/Contacts-info.html',
+                controller: 'ContactsInfoCtrl'
+            })
             .state('contactsInfoEdit', {
                 url: '/contacts/info/Edit/:BusinessPartyCode/:LineItemNo',
                 cache: 'false',
@@ -236,9 +255,14 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
             })
             .state('paymentApproval', {
                 url: '/paymentApproval',
-                cache: 'false',
                 templateUrl: 'view/productivity/PaymentApproval.html',
                 controller: 'PaymentApprovalCtrl'
+            })
+            .state('paymentApprovalList', {
+                url: '/paymentApproval/list/:FilterName/:FilterValue',
+                cache: 'false',
+                templateUrl: 'view/productivity/PaymentApproval-list.html',
+                controller: 'PaymentApprovalListCtrl'
             })
             .state('vesselSchedule', {
                 url: '/vesselSchedule',

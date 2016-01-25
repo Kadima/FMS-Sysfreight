@@ -64,6 +64,10 @@ html {
 	color: #387ef5;
 }
 
+.iconfont-assertive {
+	color: #ef473a;
+}
+
 .pull-left {
   float: left; }
 
@@ -297,4 +301,18 @@ html {
 
 .contactsList p {
     font-size:0.8em;
+}
+
+.customerDetail .item-body {
+    padding: 8px;
+}
+.customerDetail .item-body .item {
+     padding: 8px;
+}
+
+.activityDetail .item-body {
+    padding: 1px;
+}
+.activityDetail .item-body .item {
+     padding: 1px;
 }
