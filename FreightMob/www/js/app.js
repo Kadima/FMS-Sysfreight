@@ -224,25 +224,24 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
                 controller: 'ContactsListCtrl'
             })
             .state('contactsDetail', {
-                url: '/contacts/detail/:TrxNo/:BusinessPartyNameLike',
-                cache: 'false',
+                url: '/contacts/detail/:TrxNo',
                 templateUrl: 'view/crm/Contacts-detail.html',
                 controller: 'ContactsDetailCtrl'
             })
             .state('contactsDetailEdit', {
-                url: '/contacts/detail/Edit/:TrxNo/:BusinessPartyName',
+                url: '/contacts/detail/Edit',
                 cache: 'false',
                 templateUrl: 'view/crm/Contacts-detail-Edit.html',
                 controller: 'ContactsDetailEditCtrl'
             })
             .state('contactsInfo', {
-                url: '/contacts/info/:BusinessPartyCode/:LineItemNo',
+                url: '/contacts/info',
                 cache: 'false',
                 templateUrl: 'view/crm/Contacts-info.html',
                 controller: 'ContactsInfoCtrl'
             })
             .state('contactsInfoEdit', {
-                url: '/contacts/info/Edit/:BusinessPartyCode/:LineItemNo',
+                url: '/contacts/info/Edit',
                 cache: 'false',
                 templateUrl: 'view/crm/Contacts-info-Edit.html',
                 controller: 'ContactsInfoEditCtrl'
@@ -288,7 +287,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$ionicConfigProvider',
                 controller: 'ShipmentStatusListCtrl'
             })
             .state('shipmentStatusDetail', {
-                url: '/shipmentStatus/detail/:FilterName/:FilterValue/:ModuleCode',
+                url: '/shipmentStatus/detail/:FilterName/:Key/:ModuleCode',
                 cache: 'false',
                 templateUrl: 'view/tracking/ShipmentStatus-detail.html',
                 controller: 'ShipmentStatusDetailCtrl'

@@ -7,34 +7,10 @@ var appService = angular.module('MobileAPP.services', [
     'ngCordova.plugins.inAppBrowser'
 ]);
 
-appService.service('WebApiService', ['$q', '$http', '$ionicPopup', '$timeout',
-    function ($q, $http, $ionicPopup, $timeout) {
-        function parseResponseStatus (status) {
-            if (!status) return { isSuccess: true };
-            var result =
-            {
-                isSuccess: status.meta.code === 200, // && status.meta.errors.code === 0,
-                errorCode: status.meta.errors.code,
-                message: status.meta.message,
-                data: status.data.results,
-                errorMessage: status.meta.errors.message//,
-                //fieldErrors: [],
-            };
-            /*
-            if (status.meta.errors.field) {
-                for (var i = 0, len = status.FieldErrors.length; i < len; i++) {
-                    var err = status.FieldErrors[i];
-                    var error = { errorCode: err.ErrorCode, fieldName: err.FieldName, errorMessage: err.ErrorMessage || '' };
-                    result.fieldErrors.push(error);
-                    if (error.fieldName) {
-                        result.fieldErrorMap[error.fieldName] = error;
-                    }
-                }
-            }
-            */
-            return result;
-        }
-        this.Post = function (requestUrl, requestData) {
+appService.service('WebApiService', ['$q', '$http', '$ionicLoading', '$ionicPopup', '$timeout',
+    function ($q, $http, $ionicLoading, $ionicPopup, $timeout) {
+        this.Post = function (requestUrl, requestData, blnShowLoad) {
+            if(blnShowLoad){$ionicLoading.show();}
             var deferred = $q.defer();
             if (strBaseUrl.length > 0 && strBaseUrl.indexOf('/') < 0 ) {
                 strBaseUrl = "/" + strBaseUrl;
@@ -43,22 +19,22 @@ appService.service('WebApiService', ['$q', '$http', '$ionicPopup', '$timeout',
             strWebSiteURL = onStrToURL(strWebSiteURL);
             var strSignature = hex_md5(strBaseUrl + requestUrl + strSecretKey.replace(/-/ig, ""));
             var url = strWebServiceURL + strBaseUrl + requestUrl;
+            console.log(url);
             var config = {
-                withCredentials: false,
-                headers: {
-                  'content-type': 'application/json',
-                  'cache-control': 'no-cache'
-                  //'Signature': strSignature
-                }
+                'Content-Type':'application/json'
             };
-            $http.post(url, requestData, config).success(function (response) {
-                deferred.resolve(response.data.results);
-            }).error(function (response) {
-                deferred.reject(response);
+            $http.post(url, requestData, config).success(function (data, status, headers, config, statusText) {
+                if(blnShowLoad){$ionicLoading.hide();}
+                deferred.resolve(data);
+            }).error(function (data, status, headers, config, statusText) {
+                if(blnShowLoad){$ionicLoading.hide();}
+                deferred.reject(data);
+                console.log(data);
             });
             return deferred.promise;
         };
-        this.Get = function (requestUrl) {
+        this.Get = function (requestUrl, blnShowLoad) {
+            if(blnShowLoad){$ionicLoading.show();}
             var deferred = $q.defer();
             if (strBaseUrl.length > 0 && strBaseUrl.indexOf('/') < 0 ) {
                 strBaseUrl = "/" + strBaseUrl;
@@ -68,20 +44,18 @@ appService.service('WebApiService', ['$q', '$http', '$ionicPopup', '$timeout',
             var strSignature = hex_md5(strBaseUrl + requestUrl + "?format=json" + strSecretKey.replace(/-/ig, ""));
             var url = strWebServiceURL + strBaseUrl + requestUrl + "?format=json";
             console.log(url);
-            $http({
-                method: "GET",
-                url:    url
-                //headers: {
-                //    "Signature": strSignature
-                //}
-            }).success(function (response) {
-                deferred.resolve(response.data.results);
-            }).error(function (response) {
-                deferred.reject(response);
+            $http.get(url).success(function (data, status, headers, config, statusText) {
+                if(blnShowLoad){$ionicLoading.hide();}
+                deferred.resolve(data);
+            }).error(function (data, status, headers, config, statusText) {
+                if(blnShowLoad){$ionicLoading.hide();}
+                deferred.reject(data);
+                console.log(data);
             });
             return deferred.promise;
         };
-        this.GetParam = function (requestUrl) {
+        this.GetParam = function (requestUrl, blnShowLoad) {
+            if(blnShowLoad){$ionicLoading.show();}
             var deferred = $q.defer();
             if (strBaseUrl.length > 0 && strBaseUrl.indexOf('/') < 0 ) {
                 strBaseUrl = "/" + strBaseUrl;
@@ -91,23 +65,20 @@ appService.service('WebApiService', ['$q', '$http', '$ionicPopup', '$timeout',
             var strSignature = hex_md5(strBaseUrl + requestUrl + "&format=json" + strSecretKey.replace(/-/ig, ""));
             var url = strWebServiceURL + strBaseUrl + requestUrl + "&format=json";
             console.log(url);
-            $http({
-                method: "GET",
-                url:    url
-                //headers: {
-                //    "Signature": strSignature
-                //}
-            }).success(function (response) {
-                deferred.resolve(response.data.results);
-            }).error(function (response) {
-                deferred.reject(response);
+            $http.get(url).success(function (data, status, headers, config, statusText) {
+                if(blnShowLoad){$ionicLoading.hide();}
+                deferred.resolve(data);
+            }).error(function (data, status, headers, config, statusText) {
+                if(blnShowLoad){$ionicLoading.hide();}
+                deferred.reject(data);
+                console.log(data);
             });
             return deferred.promise;
         };
     }]);
 
-appService.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading', '$ionicPopup', '$cordovaToast', '$cordovaFile', '$cordovaFileTransfer', '$cordovaFileOpener2',
-    function ($http, $timeout, $ionicLoading, $ionicPopup, $cordovaToast, $cordovaFile, $cordovaFileTransfer, $cordovaFileOpener2) {
+appService.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading', '$cordovaToast', '$cordovaFile', '$cordovaFileTransfer', '$cordovaFileOpener2',
+    function ($http, $timeout, $ionicLoading, $cordovaToast, $cordovaFile, $cordovaFileTransfer, $cordovaFileOpener2) {
         this.Download = function(fileName, fileType, onPlatformError, onCheckError, onDownloadError){
             $ionicLoading.show({
                 template: "Download  0%"
@@ -120,6 +91,8 @@ appService.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading',
                     //
                 }, function (error) {
                     blnError = true;
+                }).catch(function(ex){
+                    console.log(ex);
                 });
                 var targetPath = cordova.file.externalRootDirectory + fileName;
                 var trustHosts = true;
@@ -132,6 +105,8 @@ appService.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading',
                             // success
                         }, function (err) {
                             // error
+                        }).catch(function(ex){
+                            console.log(ex);
                         });
                     }, function (err) {
                         $cordovaToast.showShortCenter('Download faild.');
@@ -147,6 +122,8 @@ appService.service('DownloadFileService', ['$http', '$timeout', '$ionicLoading',
                                 $ionicLoading.hide();
                             }
                         })
+                    }).catch(function(ex){
+                        console.log(ex);
                     });
                 } else {
                     $ionicLoading.hide();
@@ -195,10 +172,10 @@ appService.service('OpenUrlService', ['$cordovaInAppBrowser',
                 };
                 $cordovaInAppBrowser.open(url, '_system', options)
                 .then(function(event) {
-                // success
+                    // success
                 })
                 .catch(function(event) {
-                // error
+                    // error
                     $cordovaInAppBrowser.close();
                 });
             }else{
