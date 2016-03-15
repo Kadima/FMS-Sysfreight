@@ -112,3 +112,119 @@ appFactory.factory('CONTACTS_ORM',function(){
     };
     return CONTACTS_ORM;
 });
+appFactory.factory('SALESMANACTIVITY_ORM',function(){
+    var SALESMANACTIVITY_ORM = {
+        SEARCH : {
+            SalesmanNameLike:  '',
+            _setKey:   function(value) {
+                SALESMANACTIVITY_ORM.SEARCH.SalesmanNameLike = value;
+            }
+        },
+        LIST : {
+            CanLoadedMoreData:      true,
+            Smsa1s:                 {},
+            _setObj:   function(value) {
+                SALESMANACTIVITY_ORM.LIST.Smsa1s = value;
+            }
+        },
+        DETAIL : {
+            TrxNo:                  '',
+            Smsa2s:                  {},
+            _setKey:     function(value) {
+                SALESMANACTIVITY_ORM.DETAIL.TrxNo = value;
+            },
+            _setObj:    function(value) {
+                SALESMANACTIVITY_ORM.DETAIL.Smsa2s = value;
+            }
+        },
+        SUBDETAIL : {
+            Smsa2:                  {},
+            _setObj:    function(value) {
+                SALESMANACTIVITY_ORM.SUBDETAIL.Smsa2 = value;
+            }
+        }
+    };
+    SALESMANACTIVITY_ORM.init = function() {
+        SALESMANACTIVITY_ORM.SEARCH.SalesmanNameLike =      '';
+        SALESMANACTIVITY_ORM.LIST.CanLoadedMoreData =       true;
+        SALESMANACTIVITY_ORM.LIST.Smsa1s =                  {};
+        SALESMANACTIVITY_ORM.DETAIL.TrxNo =                 '';
+        SALESMANACTIVITY_ORM.DETAIL.Smsa2s =                {};
+        SALESMANACTIVITY_ORM.SUBDETAIL.Smsa2 =              {};
+    };
+    return SALESMANACTIVITY_ORM;
+});
+appFactory.factory('SALES_ORM',function(){
+    var SALES_ORM = {
+        SEARCH : {
+            Type                    :'',
+            setType:   function(value) {
+                this.Type = value;
+            },
+            Smct                    : {
+                PartyName           :'',
+                PortOfLoadingCode   :'',
+                PortOfDischargeCode :'',
+                EffectiveDate       :'',
+                ExpiryDate          :'',
+                ModuleCode          :'',
+                JobType             :''
+            },
+            setSmct:   function(obj) {
+                this.Smct = obj;
+            }
+        },
+        LIST : {
+            CanLoadedMoreData:      true,
+            Smct1s:                 {},
+            _set:   function(value) {
+                this.Smct1s = value;
+            }
+        },
+        DETAIL : {
+            TrxNo:                  '',
+            Smct1:                  {},
+            Smct2s:                 {},
+            _setKey:    function(value) {
+                this.TrxNo = value;
+            },
+            _setObj:    function(value) {
+                this.Smct1 = value;
+            },
+            _setObjs:    function(value) {
+                this.Smct2s = value;
+            }
+        }
+    };
+    SALES_ORM.init = function() {
+        this.SEARCH.Type                = '',
+        this.SEARCH.Smct                = {},
+        this.LIST.CanLoadedMoreData     = true;
+        this.LIST.Smct1s                = {};
+        this.DETAIL.TrxNo               = '';
+        this.DETAIL.Smct1               = {};
+        this.DETAIL.Smct2s              = {};
+    };
+    return SALES_ORM;
+});
+appFactory.factory('GEO_CONSTANT',function(){
+    var GEO_CONSTANT = {
+        Baidu:{
+            point: {},
+            set:   function(value) {
+                this.point = value;
+            }
+        },
+        Google:{
+            point: {},
+            set:   function(value) {
+                this.point = value;
+            }
+        }
+    };
+    GEO_CONSTANT.init = function() {
+        this.Baidu.point = {};
+        this.Google.point = {};
+    };
+    return GEO_CONSTANT;
+});
