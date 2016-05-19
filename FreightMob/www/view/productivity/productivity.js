@@ -48,7 +48,7 @@ appControllers.controller( 'PaymentApprovalListCtrl', [ '$scope', '$state', '$st
             IsSelectAll: false
         };
         $scope.plviStatus = {
-            text: "USE",
+            text: 'USE',
             checked: false
         };
         $scope.returnSearch = function() {
@@ -170,7 +170,7 @@ appControllers.controller( 'PaymentApprovalListCtrl', [ '$scope', '$state', '$st
 appControllers.controller( 'MemoCtrl', [ '$scope', '$state', '$stateParams', '$ionicPopup', 'ApiService',
     function( $scope, $state, $stateParams, $ionicPopup, ApiService ) {
         $scope.Saus1 = {
-            UserID: sessionStorage.getItem( "UserId" ),
+            UserID: sessionStorage.getItem( 'UserId' ),
             Memo: ''
         };
         if ( $scope.Saus1.UserID === null ) {
@@ -183,12 +183,12 @@ appControllers.controller( 'MemoCtrl', [ '$scope', '$state', '$stateParams', '$i
         $scope.returnUpdateMemo = function() {
             if ( alertPopup === null ) {
                 var jsonData = {
-                    "saus1": $scope.Saus1
+                    'saus1': $scope.Saus1
                 };
-                var strUri = "/api/freight/saus1/memo";
+                var strUri = '/api/freight/saus1/memo';
                 ApiService.Post( strUri, jsonData, true ).then( function success( result ) {
                     alertPopup = $ionicPopup.alert( {
-                        title: "Save Successfully!",
+                        title: 'Save Successfully!',
                         okType: 'button-calm'
                     } );
                 } );
@@ -198,7 +198,7 @@ appControllers.controller( 'MemoCtrl', [ '$scope', '$state', '$stateParams', '$i
             }
         };
         var GetSaus1 = function( uid ) {
-            var strUri = "/api/freight/saus1/memo?userID=" + uid;
+            var strUri = '/api/freight/saus1/memo?userID=' + uid;
             ApiService.GetParam( strUri, true ).then( function success( result ) {
                 $scope.Saus1.Memo = result.data.results;
             } );
@@ -239,6 +239,7 @@ appControllers.controller( 'DocumentScanCtrl', [ 'ENV', '$scope', '$state', '$st
             JobNo: '',
             Jmjm1s: {}
         };
+        $scope.Doc.JobNo = 'SE07731-03';
         $scope.capture = null;
         var showPopup = function( title, type ) {
             if ( alertPopup != null ) {
@@ -387,7 +388,9 @@ appControllers.controller( 'DocumentScanCtrl', [ 'ENV', '$scope', '$state', '$st
         };
         $scope.openCam = function() {
             $cordovaBarcodeScanner.scan().then( function( imageData ) {
-                $scope.Doc.JobNo = imageData.text;
+                var qrcode = imageData.text;
+                var qrcodes = qrcode.split('#');
+                $scope.Doc.JobNo = qrcodes.length>1? qrcodes[1]: qrcodes[0];
                 $scope.showActionSheet();
             }, function( error ) {
                 $cordovaToast.showShortBottom( error );
@@ -402,6 +405,7 @@ appControllers.controller( 'RetrieveDocCtrl', [ 'ENV', '$scope', '$state', '$sta
             JobNo: '',
             Jmjm1s: []
         };
+        $scope.Doc.JobNo = 'SE07731-03';
         var showPopup = function( title, type, callback ) {
             if ( alertPopup != null ) {
                 alertPopup.close();
@@ -435,7 +439,9 @@ appControllers.controller( 'RetrieveDocCtrl', [ 'ENV', '$scope', '$state', '$sta
         };
         $scope.openCam = function() {
             $cordovaBarcodeScanner.scan().then( function( imageData ) {
-                $scope.Doc.JobNo = imageData.text;
+                var qrcode = imageData.text;
+                var qrcodes = qrcode.split('#');
+                $scope.Doc.JobNo = qrcodes.length>1? qrcodes[1]: qrcodes[0];
                 $scope.goToList();
             }, function( error ) {
                 $cordovaToast.showShortBottom( error );
@@ -478,9 +484,23 @@ appControllers.controller( 'RetrieveDocListCtrl', [ 'ENV', '$scope', '$state', '
         };
         $scope.download = function( Jmjm1, File ) {
             if(is.not.undefined(File)){
-                var strFileName = Jmjm1.JobNo + '-' + File.FileName;
-                var strURL = ENV.api + '/api/freight/view/img/file?FolderName=Jmjm1&Key=' + Jmjm1.JobNo + '&FileName=' + File.FileName + '&format=json';
-                DownloadFileService.Download( strURL, strFileName, 'image/jpeg', onPlatformError, null, null );
+                var strFileName = Jmjm1.JobNo + '-' + File.FileName,
+                    strURL='',
+                    type='';
+                if(is.equal(File.Extension,'.pdf')){
+                    type = 'application/pdf';
+                    strURL = ENV.api + '/api/freight/view/file?eDoc=0&Type=pdf&FolderName=Jmjm1&Key=' + Jmjm1.JobNo + '&FileName=' + File.FileName + '&format=json';
+                }else if(is.equal(File.Extension,'.txt')){
+                    type = 'text/plan';
+                    strURL = ENV.api + '/api/freight/view/file?eDoc=0&Type=txt&FolderName=Jmjm1&Key=' + Jmjm1.JobNo + '&FileName=' + File.FileName + '&format=json';
+                }else if(is.equal(File.Extension,'.jpg')||is.equal(File.Extension,'.png')||is.equal(File.Extension,'.bmp')){
+                    type = 'image/jpeg';
+                    strURL = ENV.api + '/api/freight/view/file?eDoc=0&Type=img&FolderName=Jmjm1&Key=' + Jmjm1.JobNo + '&FileName=' + File.FileName + '&format=json';
+                }else {
+                    type = 'application/octet-stream';
+                    strURL = ENV.api + '/api/freight/view/file?eDoc=0&Type=stream&FolderName=Jmjm1&Key=' + Jmjm1.JobNo + '&FileName=' + File.FileName + '&format=json';
+                }
+                DownloadFileService.Download( strURL, strFileName, type, onPlatformError, null, null );
             }
         };
         var GetJmjm1s = function( JobNo ) {
