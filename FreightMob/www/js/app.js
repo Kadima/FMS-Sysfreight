@@ -1,15 +1,9 @@
 var app = angular.module( 'MobileAPP', [
     'ionic',
+    'ngCordova',
     'jett.ionic.filter.bar',
     'ionic-datepicker',
     'ionicLazyLoad',
-    'ngCordova.plugins.toast',
-    'ngCordova.plugins.dialogs',
-    'ngCordova.plugins.appVersion',
-    'ngCordova.plugins.file',
-    'ngCordova.plugins.fileTransfer',
-    'ngCordova.plugins.fileOpener2',
-    'ngCordova.plugins.keyboard',
     'MobileAPP.config',
     'MobileAPP.factories',
     'MobileAPP.services',
@@ -17,14 +11,16 @@ var app = angular.module( 'MobileAPP', [
 ] );
 
 app.run( [ 'ENV', '$ionicPlatform', '$rootScope', '$state', '$location', '$timeout', '$ionicPopup',
-    '$ionicHistory', '$ionicLoading', '$cordovaToast', '$cordovaFile', '$cordovaKeyboard',
+    '$ionicHistory', '$ionicLoading', '$cordovaToast', '$cordovaKeyboard', '$cordovaSQLite',
     function( ENV, $ionicPlatform, $rootScope, $state, $location, $timeout, $ionicPopup,
-        $ionicHistory, $ionicLoading, $cordovaToast, $cordovaFile, $cordovaKeyboard ) {
+        $ionicHistory, $ionicLoading, $cordovaToast, $cordovaKeyboard, $cordovaSQLite) {
+        if ( window.cordova ) {
+            ENV.fromWeb = false;
+        } else {
+            ENV.fromWeb = true;
+        }
         $ionicPlatform.ready( function() {
-            // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-            // for form inputs)
-            if ( window.cordova ) {
-                ENV.fromWeb = false;
+            if ( !ENV.fromWeb ) {
                 $cordovaKeyboard.hideAccessoryBar(true);
                 $cordovaKeyboard.disableScroll(true);
                 /*
@@ -37,63 +33,12 @@ app.run( [ 'ENV', '$ionicPlatform', '$rootScope', '$state', '$location', '$timeo
                     //window.plugins.jPushPlugin.receiveMessageInAndroidCallback = function(data);
                 }
                 */
-                var data = 'website=' + ENV.website + '##api=' + ENV.api + '##map=' + ENV.mapProvider;
-                var path = cordova.file.externalRootDirectory;
-                var directory = ENV.rootPath;
-                var file = directory + '/' + ENV.configFile;
-                $cordovaFile.createDir( path, directory, false )
-                    .then( function( success ) {
-                        $cordovaFile.writeFile( path, file, data, true )
-                            .then( function( success ) {
-                                var blnSSL = ENV.ssl === 0 ? false : true;
-                                ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
-                                ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
-                            }, function( error ) {
-                                console.error( error );
-                                $cordovaToast.showShortBottom( error );
-                            } );
-                    }, function( error ) {
-                        // If an existing directory exists
-                        $cordovaFile.checkFile( path, file )
-                            .then( function( success ) {
-                                $cordovaFile.readAsText( path, file )
-                                    .then( function( success ) {
-                                        var arConf = success.split( '##' );
-                                        var arWebServiceURL = arConf[ 0 ].split( '=' );
-                                        if ( is.not.empty( arWebServiceURL[ 1 ] ) ) {
-                                            ENV.website = arWebServiceURL[ 1 ];
-                                        }
-                                        var arWebSiteURL = arConf[ 1 ].split( '=' );
-                                        if ( is.not.empty( arWebSiteURL[ 1 ] ) ) {
-                                            ENV.api = arWebSiteURL[ 1 ];
-                                        }
-                                        var arMapProvider = arConf[ 2 ].split( '=' );
-                                        if ( is.not.empty( arMapProvider[ 1 ] ) ) {
-                                            ENV.mapProvider = arMapProvider[ 1 ];
-                                        }
-                                        var blnSSL = ENV.ssl === 0 ? false : true;
-                                        ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
-                                        ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
-                                    }, function( error ) {
-                                        $cordovaToast.showShortBottom( error );
-                                    } );
-                            }, function( error ) {
-                                // If file not exists
-                                $cordovaFile.writeFile( path, file, data, true )
-                                    .then( function( success ) {
-                                        var blnSSL = ENV.ssl === 0 ? false : true;
-                                        ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
-                                        ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
-                                    }, function( error ) {
-                                        $cordovaToast.showShortBottom( error );
-                                    } );
-                            } );
-                    } );
-            } else {
-                var blnSSL = 'https:' === document.location.protocol ? true : false;
-                ENV.ssl = blnSSL ? '1' : '0';
-                ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
-                ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
+                try {
+                    db = $cordovaSQLite.openDB({name:'freightapp.db',location:'default'});
+                } catch (error) {
+                    console.error(error);
+                }
+                $cordovaSQLite.execute(db, 'CREATE TABLE IF NOT EXISTS Users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT)');
             }
             if ( window.StatusBar ) {
                 // org.apache.cordova.statusbar required
@@ -157,15 +102,11 @@ app.run( [ 'ENV', '$ionicPlatform', '$rootScope', '$state', '$location', '$timeo
 
 app.config( [ '$httpProvider', '$stateProvider', '$urlRouterProvider', '$ionicConfigProvider', '$ionicFilterBarConfigProvider',
     function( $httpProvider, $stateProvider, $urlRouterProvider, $ionicConfigProvider, $ionicFilterBarConfigProvider ) {
-        /*
-        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
-        */
-        $ionicConfigProvider.backButton.previousTitleText( false );
-        /*
         $ionicConfigProvider.platform.ios.tabs.style('standard');
-        $ionicConfigProvider.platform.ios.tabs.position('bottom');
+        $ionicConfigProvider.platform.ios.tabs.position('top');
         $ionicConfigProvider.platform.android.tabs.style('standard');
-        $ionicConfigProvider.platform.android.tabs.position('bottom');
+        $ionicConfigProvider.platform.android.tabs.position('top')
+        /*
         $ionicConfigProvider.platform.ios.navBar.alignTitle('center');
         $ionicConfigProvider.platform.android.navBar.alignTitle('center');
         $ionicConfigProvider.platform.ios.backButton.previousTitleText('').icon('ion-ios-arrow-thin-left');
@@ -173,18 +114,61 @@ app.config( [ '$httpProvider', '$stateProvider', '$urlRouterProvider', '$ionicCo
         $ionicConfigProvider.platform.ios.views.transition('ios');
         $ionicConfigProvider.platform.android.views.transition('android');
         */
+    	//$ionicConfigProvider.views.forwardCache(true);//开启全局缓存
+    	$ionicConfigProvider.views.maxCache(3);//关闭缓存
+        $httpProvider.defaults.headers.put['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+        // Override $http service's default transformRequest
+        $httpProvider.defaults.transformRequest = [function(data) {
+            /**
+             * The workhorse; converts an object to x-www-form-urlencoded serialization.
+             * @param {Object} obj
+             * @return {String}
+             */
+            var param = function(obj) {
+                var query = '';
+                var name, value, fullSubName, subName, subValue, innerObj, i;
+
+                for (name in obj) {
+                    value = obj[name];
+
+                    if (value instanceof Array) {
+                        for (i = 0; i < value.length; ++i) {
+                            subValue = value[i];
+                            fullSubName = name + '[' + i + ']';
+                            innerObj = {};
+                            innerObj[fullSubName] = subValue;
+                            query += param(innerObj) + '&';
+                        }
+                    } else if (value instanceof Object) {
+                        for (subName in value) {
+                            subValue = value[subName];
+                            fullSubName = name + '[' + subName + ']';
+                            innerObj = {};
+                            innerObj[fullSubName] = subValue;
+                            query += param(innerObj) + '&';
+                        }
+                    } else if (value !== undefined && value !== null) {
+                        query += encodeURIComponent(name) + '='
+                                + encodeURIComponent(value) + '&';
+                    }
+                }
+
+                return query.length ? query.substr(0, query.length - 1) : query;
+            };
+
+            return angular.isObject(data) && String(data) !== '[object File]'
+                    ? param(data)
+                    : data;
+        }];
+        $ionicConfigProvider.backButton.previousTitleText( false );
+        //
         $stateProvider
             .state( 'index', {
                 url: '',
                 abstract: true,
                 templateUrl: 'view/menu.html',
                 controller: 'IndexCtrl'
-            } )
-            .state( 'loading', {
-                url: '/loading',
-                cache: 'false',
-                templateUrl: 'view/loading.html',
-                controller: 'LoadingCtrl'
             } )
             .state( 'index.login', {
                 url: '/login',
@@ -219,6 +203,15 @@ app.config( [ '$httpProvider', '$stateProvider', '$urlRouterProvider', '$ionicCo
                     'menuContent': {
                         templateUrl: 'view/main.html',
                         controller: 'MainCtrl'
+                    }
+                }
+            } )
+            .state( 'index.loading', {
+                url: '/loading',
+                views: {
+                    'menuContent': {
+                        templateUrl: 'view/loading.html',
+                        controller: 'LoadingCtrl'
                     }
                 }
             } )
@@ -409,7 +402,7 @@ app.config( [ '$httpProvider', '$stateProvider', '$urlRouterProvider', '$ionicCo
                 templateUrl: 'view/productivity/RetrieveDoc-list.html',
                 controller: 'RetrieveDocListCtrl'
             } );
-        $urlRouterProvider.otherwise( '/login' );
+        $urlRouterProvider.otherwise( '/loading' );
         /*
         $ionicFilterBarConfigProvider.theme('calm');
         $ionicFilterBarConfigProvider.clear('ion-close');

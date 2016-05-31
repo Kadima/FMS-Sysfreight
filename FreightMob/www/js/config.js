@@ -1,8 +1,8 @@
 'use strict';
 var appConfig = angular.module('MobileAPP.config', []);
 appConfig.value('ENV', {
-    'website':      'http://www.sysfreight.net/mobileapp',
-    'api':          'http://www.sysfreight.net/WebApi',
+    'website':      'www.sysfreight.net/mobileapp',
+    'api':          'www.sysfreight.net/WebApi',
     'ssl':          '0', // 0 : false, 1 : true
     'port':         '8081', // http port no
     'debug':        true,
@@ -14,7 +14,7 @@ appConfig.value('ENV', {
     'rootPath':     'FreightApp',
     'configFile':   'config.txt',
     'mapProvider':  'google',
-    'version':      '1.0.27'
+    'version':      '1.0.28'
 });
 
 var onGetRegistradionID = function(data) {
@@ -43,11 +43,15 @@ var appendProtocol = function(url, blnSSL, portNo) {
     }
     return url;
 };
-var rmProtocol = function(url) {
-    if (url.length > 0) {
+var rmProtocol = function(url, portNo) {
+    if (is.not.empty(url)) {
         var regex = /(https?:\/\/)?/gi;
         url = url.replace(regex, '');
         regex = /(http?:\/\/)?/gi;
+        url = url.replace(regex, '');
+    }
+    if (is.not.empty(portNo)) {
+        var regex = /\:(\d)+/;
         url = url.replace(regex, '');
     }
     return url;
