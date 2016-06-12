@@ -24,6 +24,16 @@ appControllers.controller( 'IndexCtrl', [
         $scope.Status = {
             Login: false
         };
+        var showQRcode = function(){
+            var qrcode = new QRCode(document.getElementById('qrcode'), {
+                text: ENV.website + '/' + ENV.apkName + '.apk',
+                width: 174,
+                height: 174,
+                colorDark : '#000000',
+                colorLight : '#ffffff',
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        };
         var deleteLogin = function(){
             if ( !ENV.fromWeb ) {
                 $cordovaSQLite.execute( db, 'DELETE FROM Users' )
@@ -107,12 +117,14 @@ appControllers.controller( 'IndexCtrl', [
                     var blnSSL = ENV.ssl === 0 ? false : true;
                     ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
                     ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
+                    showQRcode();
                 }, function( error ) {
                     $cordovaToast.showShortBottom( error );
                     console.error( error );
                 } );
         };
         $ionicPlatform.ready( function() {
+            console.log('ionicPlatform.ready');
             if ( !ENV.fromWeb ) {
                 var data = 'website=' + ENV.website + '##' +
                     'api=' + ENV.api + '##' +
@@ -151,6 +163,7 @@ appControllers.controller( 'IndexCtrl', [
                                             var blnSSL = ENV.ssl === 0 ? false : true;
                                             ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
                                             ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
+                                            showQRcode();
                                         } else {
                                             $cordovaFile.removeFile( path, file )
                                                 .then( function( success ) {
@@ -173,6 +186,7 @@ appControllers.controller( 'IndexCtrl', [
                 ENV.ssl = blnSSL ? '1' : '0';
                 ENV.website = appendProtocol( ENV.website, blnSSL, ENV.port );
                 ENV.api = appendProtocol( ENV.api, blnSSL, ENV.port );
+                showQRcode();
             }
         } );
     }
@@ -375,8 +389,8 @@ appControllers.controller( 'SettingCtrl', [ 'ENV', '$scope', '$state', '$ionicHi
             }
         };
         $scope.reset = function() {
-            $scope.Setting.WebApiURL = 'www.sysfreight.net/WebApi';
-            $scope.Setting.WebSiteUrl = 'www.sysfreight.net/mobileapp';
+            $scope.Setting.WebApiURL = 'www.sysfreight.net/apis/fms/basic';
+            $scope.Setting.WebSiteUrl = 'www.sysfreight.net/app/fms/basic';
             $scope.Setting.WebPort = '8081';
             $scope.Setting.MapProvider = 'google';
             if ( !ENV.fromWeb ) {
@@ -500,7 +514,7 @@ appControllers.controller( 'MainCtrl', [ 'ENV', '$scope', '$state', '$timeout', 
                     script = document.createElement( 'script' );
                     script.type = 'text/javascript';
                     script.id = 'bmap';
-                    script.src = 'http://api.map.baidu.com/getscript?v=2.0&ak=94415618dfaa9ff5987dd07983f25159&callback=initMap';
+                    script.src = 'http://api.map.baidu.com/getscript?v=2.0&ak=94415618dfaa9ff5987dd07983f25159';
                     //script.src = 'js/maps/bmap.js';
                     document.body.appendChild( script );
                 }
